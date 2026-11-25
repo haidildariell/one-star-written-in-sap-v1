@@ -1,56 +1,49 @@
 """One Star, Written in Sap.
 
-Writes a one-line, one-star review from a houseplant about its human
-owner to /output/entry.txt, then validates the result.
-
-The entry is built from three named beats so the joke's structure stays
-visible in the code: the setup (where the plant got put), the grievance
-(what the placement actually does to it), and the punch (the concrete
-image the reader is left with).
+Writes the one-star review entry to /output/entry.txt.
 """
 
 import os
 
-# Beat 1 — setup: the owner moved the plant for "good light".
-SETUP = 'He stuck me above the radiator for \'good light\''
-
-# Beat 2 — grievance: the placement slow-roasts the plant.
-GRIEVANCE = 'so now I slow-roast like a rotisserie chicken'
-
-# Beat 3 — punch: the concrete image, in its terracotta pot, while the
-# owner waters the wrong plant.
-PUNCH = 'in a terracotta pot while he waters the cactus'
+SETUP = "One star. He stuck me above the radiator for 'good light',"
+GRIEVANCE = "so now I slow-roast like a rotisserie chicken in a terracotta pot"
+PUNCH = "while he waters the cactus."
 
 OUTPUT_PATH = "/output/entry.txt"
-MIN_LENGTH = 1
 MAX_LENGTH = 279
 
 
-def build_entry() -> str:
-    """Assemble the single-line review from its three beats."""
-    return "One star. " + SETUP + ", " + GRIEVANCE + " " + PUNCH + "."
+PARTS = (SETUP, GRIEVANCE, PUNCH)
 
 
-def validate(text: str) -> None:
-    """Enforce the competition gate: one line, 1-279 chars, not blank."""
-    if not text.strip():
-        raise ValueError("entry must not be blank")
+def _join_parts(parts):
+    """Join the beats with a single space between each."""
+    return " ".join(parts)
+
+
+def build_entry():
+    """Assemble the entry from its three beats."""
+    return _join_parts(PARTS)
+
+
+def validate(text):
+    """Check the entry is a single non-empty line within the limit."""
+    if not text:
+        raise ValueError("entry must not be empty")
     if "\n" in text or "\r" in text:
         raise ValueError("entry must be a single line")
-    if not MIN_LENGTH <= len(text) <= MAX_LENGTH:
-        raise ValueError(
-            "entry must be %d-%d characters, got %d"
-            % (MIN_LENGTH, MAX_LENGTH, len(text))
-        )
+    if len(text) > MAX_LENGTH:
+        raise ValueError("entry exceeds %d characters" % MAX_LENGTH)
+    return True
 
 
-def main() -> None:
+def main():
     entry = build_entry()
     validate(entry)
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as handle:
         handle.write(entry)
-    print("wrote %s (%d chars)" % (OUTPUT_PATH, len(entry)))
+    print("wrote %d characters to %s" % (len(entry), OUTPUT_PATH))
 
 
 if __name__ == "__main__":
